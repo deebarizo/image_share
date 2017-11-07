@@ -10,10 +10,9 @@
 			{{ >loginButtons }}
 		</div>
 	</nav>
-	
 
   	<div class="container">
-  		<h1>Welcome to Image Share!</h1>
+  		<h1>Welcome to Image Share {{ username }}!</h1>
 
 	  	{{ >images }}
 	</div>
@@ -46,7 +45,9 @@
 </template>
 
 <template name="images">
-	<button class="btn btn-success js-show-image-form">Add Image</button>
+	{{ #if currentUser }}
+		<button class="btn btn-success js-show-image-form">Add Image</button>
+	{{ /if }}
 
 	<div class="row">
 		{{#each images}}

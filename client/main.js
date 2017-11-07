@@ -14,6 +14,16 @@ Template.images.helpers({ images:
 	) 
 });
 
+Template.body.helpers({ 
+	username: function() {
+		if (Meteor.user()) {
+			return Meteor.user().emails[0].address;
+		} else {
+			return "Anonymous Internet User";
+		}
+	}
+});
+
 Template.images.events({
 	'click .js-image': function(event) {
 		$(event.target).css('width', '50px');
