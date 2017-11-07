@@ -6,26 +6,17 @@ Meteor.startup(() => {
 	console.log(Images.find().count());
 
 	if (Images.find().count() == 0) {
-		Images.insert(
-			{
-				img_src: 'red_bird.jpg',
-				img_alt: 'red bird'
-			}
-		);
+		for (var i = 1; i <= 22; i++) {
+		
+			Images.insert(
+				{
+					img_src: 'img_'+i+'.jpg',
+					img_alt: 'image number '+i
+				}
+			);
+		}
 
-		Images.insert(
-			{
-				img_src: 'red_green_bird.jpg',
-				img_alt: 'red green bird'
-			}
-		);
-
-		Images.insert(
-			{
-				img_src: 'white_bird.jpg',
-				img_alt: 'white bird'
-			}
-		);
+		console.log(Images.find().count());
 	}
 });
 
