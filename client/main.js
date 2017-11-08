@@ -5,19 +5,46 @@ import './main.html';
 
 Images = new Mongo.Collection('images');
 
-Template.images.helpers({ images: 
-	Images.find(
-		{}, 
-		{
-			sort: {createdOn: -1, rating: -1}
+Accounts.ui.config({
+	passwordSignupFields: "USERNAME_AND_EMAIL"
+});
+
+Template.images.helpers({ 
+	images: function() {
+		if (Session.get('userFilter')) {
+			return Images.find({createdBy: Session.get('userFilter')}, { sort: {createdOn: -1, rating: -1}});
+		} else {
+			return Images.find({}, { sort: {createdOn: -1, rating: -1}});
 		}
-	) 
+	},
+
+	filtering_images: function() {
+		if (Session.get('userFilter')) {
+			return true;
+		} else {
+			return false;
+		}
+	},
+
+	getFilterUser: function() {
+		var user = Meteor.users.findOne({ _id: Session.get('userFilter') });
+		return user.username;
+	},
+	
+	getUser: function(user_id) {
+		var user = Meteor.users.findOne({ _id: user_id });
+		if (user) {
+			return user.username;
+		} else {
+			return 'anon';
+		}
+	}
 });
 
 Template.body.helpers({ 
 	username: function() {
 		if (Meteor.user()) {
-			return Meteor.user().emails[0].address;
+			return Meteor.user().username;
 		} else {
 			return "Anonymous Internet User";
 		}
@@ -51,7 +78,15 @@ Template.images.events({
 
 	'click .js-show-image-form': function(event) {
 		$('#image_add_form').modal('show');
-	}
+	},
+
+	'click .js-set-image-filter': function(event) {
+		Session.set('userFilter', this.createdBy);
+	},
+
+	'click .js-unset-image-filter': function(event) {
+		Session.set('userFilter', undefined);
+	}	
 });
 
 Template.image_add_form.events({
@@ -64,12 +99,15 @@ Template.image_add_form.events({
 		console.log('img_src: '+img_src);
 		console.log('img_alt: '+img_alt);
 
-		Images.insert({
-			img_src: img_src,
-			img_alt: img_alt,
-			createdOn: new Date()
-		});
-		
+		if (Meteor.user()) {
+			Images.insert({
+				img_src: img_src,
+				img_alt: img_alt,
+				createdOn: new Date(),
+				createdBy: Meteor.user()._id
+			});
+		}
+
 		$('#image_add_form').modal('hide');
 
 		return false;
