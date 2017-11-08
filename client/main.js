@@ -3,8 +3,6 @@ import { ReactiveVar } from 'meteor/reactive-var';
 
 import './main.html';
 
-Images = new Mongo.Collection('images');
-
 Session.set('imageLimit', 8);
 
 lastScrollTop = 0;
