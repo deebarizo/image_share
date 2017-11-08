@@ -5,6 +5,24 @@ import './main.html';
 
 Images = new Mongo.Collection('images');
 
+Session.set('imageLimit', 8);
+
+lastScrollTop = 0;
+$(window).scroll(function(event) {
+	// test if we are near the bottom of the window
+	if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+		// our location on the page
+		var scrollTop = $(this).scrollTop();
+
+		// test if we are scrolling down
+		if (scrollTop > lastScrollTop) {
+			Session.set('imageLimit', Session.get('imageLimit') + 4);
+		}
+
+		lastScrollTop = scrollTop;
+	}
+});
+
 Accounts.ui.config({
 	passwordSignupFields: "USERNAME_AND_EMAIL"
 });
@@ -12,9 +30,25 @@ Accounts.ui.config({
 Template.images.helpers({ 
 	images: function() {
 		if (Session.get('userFilter')) {
-			return Images.find({createdBy: Session.get('userFilter')}, { sort: {createdOn: -1, rating: -1}});
+			return Images.find(
+				{
+					createdBy: Session.get('userFilter')
+				}, 
+				{
+					sort: 
+						{createdOn: -1, rating: -1}, 
+						limit: Session.get('imageLimit')
+				}
+			);
 		} else {
-			return Images.find({}, { sort: {createdOn: -1, rating: -1}});
+			return Images.find(
+				{}, 
+				{
+					sort: 
+						{createdOn: -1, rating: -1}, 
+						limit: Session.get('imageLimit')
+				}
+			);
 		}
 	},
 
@@ -27,12 +61,12 @@ Template.images.helpers({
 	},
 
 	getFilterUser: function() {
-		var user = Meteor.users.findOne({ _id: Session.get('userFilter') });
+		var user = Meteor.users.findOne({_id: Session.get('userFilter')});
 		return user.username;
 	},
 	
 	getUser: function(user_id) {
-		var user = Meteor.users.findOne({ _id: user_id });
+		var user = Meteor.users.findOne({_id: user_id});
 		if (user) {
 			return user.username;
 		} else {
